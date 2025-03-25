@@ -3,10 +3,42 @@
 	This problem requires you to implement a sorting algorithm
 	you can use bubble sorting, insertion sorting, heap sorting, etc.
 */
-// I AM NOT DONE
 
-fn sort<T>(array: &mut [T]){
-	//TODO
+fn sort<T:std::cmp::PartialOrd + std::clone::Clone + std::fmt::Debug>(arr: &mut [T]){
+    if arr.len() > 1 {
+        quick_sort_range(arr, 0, arr.len() - 1);
+    }
+}
+fn quick_sort_range<T:std::cmp::PartialOrd + std::clone::Clone + std::fmt::Debug>(arr:&mut [T],lo:usize,hi:usize){
+    if lo < hi {
+        let p = partition(arr, lo, hi);
+        if p>0{
+            quick_sort_range(arr, lo, p - 1);
+        }
+        quick_sort_range(arr, p + 1, hi);
+    }
+}
+fn partition<T:std::cmp::PartialOrd + std::clone::Clone + std::fmt::Debug>(arr:&mut [T],lo:usize,hi:usize) -> usize{
+	let pivot = lo;
+    let temp = arr[pivot].clone();
+    let (mut left, mut right) = (lo, hi);
+    while left < right{
+        while left < right && arr[right] >= temp{
+            right -= 1;
+        }
+        if left != right{
+            arr.swap(left, right);
+        }
+        while left < right && arr[left] <= temp{
+            left += 1;
+        }
+
+        if left != right{
+            arr.swap(left, right);
+        }
+    }
+    arr[left] = temp;
+    left
 }
 #[cfg(test)]
 mod tests {

@@ -6,8 +6,6 @@
 
 use std::fmt::{self, Display, Formatter};
 use std::ptr::NonNull;
-use std::vec::*;
-
 #[derive(Debug)]
 struct Node<T> {
     val: T,
@@ -29,13 +27,13 @@ struct LinkedList<T> {
     end: Option<NonNull<Node<T>>>,
 }
 
-impl<T> Default for LinkedList<T> {
+impl<T: std::cmp::PartialOrd + Clone+ std::fmt::Display> Default for LinkedList<T> {
     fn default() -> Self {
         Self::new()
     }
 }
 
-impl<T> LinkedList<T> {
+impl<T: std::cmp::PartialOrd + Clone+ std::fmt::Display> LinkedList<T> {
     pub fn new() -> Self {
         Self {
             length: 0,
@@ -69,14 +67,71 @@ impl<T> LinkedList<T> {
             },
         }
     }
-	pub fn merge(list_a:LinkedList<T>,list_b:LinkedList<T>) -> Self
-	{
-		//TODO
-		Self {
-            length: 0,
-            start: None,
-            end: None,
+    fn take_first(&mut self) -> Option<NonNull<Node<T>>> {
+    	let node = self.start;
+    	match node{
+    		None => None,
+    		Some(node) => {
+    			self.start = unsafe {(*node.as_ptr()).next};
+    			self.length -= 1;
+                unsafe {(*node.as_ptr()).next = None};
+    			Some(node)
+    		}
+    	}
+    }
+    fn first_val(&mut self) -> Option<&T>{
+    	match self.start{
+    		None => None,
+    		Some(node) => Some(unsafe {&(*node.as_ptr()).val})
+    	}
+    }
+    fn add_node(&mut self,node:NonNull<Node<T>>){
+        if let Some(last_ptr) = self.end{
+            unsafe { (*last_ptr.as_ptr()).next = Some(node) };
         }
+        if self.start == None{
+            self.start = Some(node);
+        }
+    	self.end = Some(node);
+    	self.length += 1;
+    }
+	pub fn merge(mut list_a:LinkedList<T>,mut list_b:LinkedList<T>) -> Self
+	{
+		let mut new_list = LinkedList::new();
+        new_list.length = list_a.length + list_b.length;
+
+        loop{
+            let val1 = list_a.first_val();
+            let val2 = list_b.first_val();
+            if val1.is_none() || val2.is_none(){
+                break;
+            }
+            let val1 = val1.unwrap();
+            let val2 = val2.unwrap();
+            if val1 < val2{
+                new_list.add_node(list_a.take_first().unwrap());
+            }
+            else{
+            	new_list.add_node(list_b.take_first().unwrap());
+            }
+        }
+        let val1 = list_a.first_val().is_none();
+        let val2 = list_b.first_val().is_none();
+        while val1{
+            if let Some(node) = list_b.take_first(){
+                new_list.add_node(node);
+            }else{
+                break;
+            }
+        }
+        while val2{
+            if let Some(node) = list_a.take_first(){
+                new_list.add_node(node);
+            }else{
+                break;
+            }
+        }
+        new_list
 	}
 }
 

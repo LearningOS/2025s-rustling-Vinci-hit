@@ -2,12 +2,9 @@
 	double linked list reverse
 	This problem requires you to reverse a doubly linked list
 */
-// I AM NOT DONE
 
 use std::fmt::{self, Display, Formatter};
 use std::ptr::NonNull;
-use std::vec::*;
-
 #[derive(Debug)]
 struct Node<T> {
     val: T,
@@ -72,8 +69,42 @@ impl<T> LinkedList<T> {
             },
         }
     }
+    fn take_first(&mut self) -> Option<NonNull<Node<T>>>{
+        match self.start{
+            None => None,
+            Some(node) => {
+                self.start = unsafe {(*node.as_ptr()).next};
+                unsafe {(*node.as_ptr()).next = None};
+                self.length -= 1;
+                Some(node)
+            }
+        }
+    }
+    fn take_last(&mut self) -> Option<NonNull<Node<T>>>{
+        match self.end{
+            None => None,
+            Some(node) => {
+                self.end = unsafe {(*node.as_ptr()).prev};
+                unsafe {(*node.as_ptr()).prev = None};
+                self.length -= 1;
+                Some(node)
+            }
+        }
+    }
 	pub fn reverse(&mut self){
-		// TODO
+        if self.length <=1{
+            return;
+        }
+        let len = self.length;
+        let mut temp_node = self.start;
+        self.start = self.end;
+        self.end = temp_node;
+        for _ in 0..len{
+            let temp_ptr = unsafe {(*temp_node.unwrap().as_ptr()).next};
+            unsafe {(*temp_node.unwrap().as_ptr()).next = (*temp_node.unwrap().as_ptr()).prev};
+            unsafe {(*temp_node.unwrap().as_ptr()).prev = temp_ptr};
+            temp_node = temp_ptr;
+        }
 	}
 }
 
