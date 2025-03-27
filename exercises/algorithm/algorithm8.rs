@@ -52,13 +52,14 @@ impl<T> Default for Queue<T> {
     }
 }
 
+
 pub struct myStack<T>
 {
 	//TODO
 	q1:Queue<T>,
 	q2:Queue<T>
 }
-impl<T> myStack<T> {
+impl<T: std::fmt::Debug> myStack<T> {
     pub fn new() -> Self {
         Self {
 			//TODO
@@ -67,15 +68,29 @@ impl<T> myStack<T> {
         }
     }
     pub fn push(&mut self, elem: T) {
-        //TODO
+        self.q1.enqueue(elem);
     }
     pub fn pop(&mut self) -> Result<T, &str> {
-        //TODO
-		Err("Stack is empty")
+        if self.is_empty(){
+        	return Err("Stack is empty");
+        }
+        if !self.q2.is_empty() && self.q1.is_empty() {
+        	return self.q2.dequeue();
+        }
+        let mut temp = Vec::with_capacity(self.q1.size() + self.q2.size());
+        for _ in 0..self.q2.size(){
+            temp.push(self.q2.dequeue().unwrap());
+        }
+        for _ in 0..self.q1.size(){
+            temp.push(self.q1.dequeue().unwrap());
+        }
+        for i in temp.into_iter().rev(){
+            self.q2.enqueue(i);
+        }
+        return self.q2.dequeue();
     }
     pub fn is_empty(&self) -> bool {
-		//TODO
-        true
+        self.q1.is_empty() && self.q2.is_empty()
     }
 }
 
