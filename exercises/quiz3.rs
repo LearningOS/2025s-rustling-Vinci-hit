@@ -18,6 +18,8 @@
 
 // I AM NOT DONE
 
+use std::fmt::Display;
+
 pub struct ReportCard {
     pub grade: f32,
     pub student_name: String,
@@ -28,6 +30,16 @@ impl ReportCard {
     pub fn print(&self) -> String {
         format!("{} ({}) - achieved a grade of {}",
             &self.student_name, &self.student_age, &self.grade)
+    }
+}
+impl Display for ReportCard{
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        let grade = match self.grade {
+            1.0..5.5 => "A+",
+            _ => "F",
+        };
+        write!(f, "{} ({}) - achieved a grade of {}",
+            &self.student_name, &self.student_age, &grade)
     }
 }
 
@@ -57,7 +69,7 @@ mod tests {
             student_age: 11,
         };
         assert_eq!(
-            report_card.print(),
+            format!("{}", report_card),
             "Gary Plotter (11) - achieved a grade of A+"
         );
     }
